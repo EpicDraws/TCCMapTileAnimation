@@ -11,7 +11,10 @@
 #import "TCCAnimationTile.h"
 #import "TCCMapKitHelpers.h"
 
-@interface TCCAnimationTileOverlayRenderer ()
+@interface TCCAnimationTileOverlayRenderer () {
+    int errorsEncountered;
+}
+
 @property (readwrite, atomic) NSUInteger renderedTileZoomLevel;
 @end
 
@@ -68,6 +71,12 @@
         if (tile.tileImage) {
             return YES;
         }
+        
+        if(errorsEncountered > 3) {
+            // After encountering too many errors, stop trying to load tiles.
+            return NO;
+        }
+        
         MKTileOverlayPath tilePath = [TCCMapKitHelpers tilePathForMapRect:mapRect zoomLevel:cappedZoomLevel];
         __weak __typeof__(self) weakSelf = self;
         [animationOverlay loadTileAtPath:tilePath result:^(NSData *tileData, NSError *error) {
@@ -75,11 +84,19 @@
             if (strongSelf != nil) {
                 if (!error) [strongSelf setNeedsDisplayInMapRect:mapRect zoomScale:zoomScale];
             }
+            
+            if(error || !tileData || [tileData length] < 10) {
+                [self errorLoadingFrame];
+            }
         }];
         return NO;
     }
     
     return YES;
+}
+
+-(void) errorLoadingFrame {
+    errorsEncountered++;
 }
 
 /*
