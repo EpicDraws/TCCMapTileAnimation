@@ -53,7 +53,7 @@ NSString *const TCCAnimationTileOverlayErrorDomain = @"TCCAnimationTileOverlayEr
         _frameDuration = frameDuration;
         _currentFrameIndex = 0;
         _downloadQueue = [[NSOperationQueue alloc] init];
-        _downloadQueue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount;
+        _downloadQueue.maxConcurrentOperationCount = 4;
         if ([_downloadQueue respondsToSelector:@selector(setQualityOfService:)]) {
             _downloadQueue.qualityOfService = NSOperationQualityOfServiceUserInitiated;
         }
