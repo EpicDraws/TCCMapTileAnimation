@@ -46,11 +46,11 @@ int const TCCTileSize = 256; // on iOS 12 and earlier, all tiles are 256. in 13,
 
 - (BOOL)canDrawMapRect:(MKMapRect)mapRect zoomScale:(MKZoomScale)zoomScale
 {
-    self.renderedTileZoomLevel = [TCCMapKitHelpers zoomLevelForZoomScale:zoomScale];
-    
-    TCCAnimationTileOverlay *animationOverlay = (TCCAnimationTileOverlay *)self.overlay;
-    
     __weak TCCAnimationTileOverlayRenderer * weakSelf = self;
+    weakSelf.renderedTileZoomLevel = [TCCMapKitHelpers zoomLevelForZoomScale:zoomScale];
+
+    //The overlay can be nil if often or quickly to dealloc the renderer.
+    __weak __typeof__(TCCAnimationTileOverlay *) animationOverlay = weakSelf.overlay;
     
     // Render static tiles if we're stopped. Uses the MKTileOverlay method loadTileAtPath:result:
     // to load and render tile images asynchronously and on demand.
@@ -74,8 +74,9 @@ int const TCCTileSize = 256; // on iOS 12 and earlier, all tiles are 256. in 13,
             while (tileCol < widthCount) {
                                 
                 MKMapRect localMapRect = MKMapRectMake(mapRect.origin.x + (tileCol * tileSizeForZoomLevel), mapRect.origin.y + (tileRow * tileSizeForZoomLevel), tileSizeForZoomLevel, tileSizeForZoomLevel);
-                
-                TCCAnimationTile *tile = [animationOverlay staticTileForMapRect:localMapRect zoomLevel:cappedZoomLevel];
+
+                //The tile can be nil in a case of low memory
+                __weak __typeof__(TCCAnimationTile *) tile = [animationOverlay staticTileForMapRect:localMapRect zoomLevel:cappedZoomLevel];
                 
                 // Draw the image if we have it, otherwise load the tile data. Returning NO will make sure that
                 // drawRect doesn't get called immediately until setNeedsDisplayInMapRect:zoomScale: gets called
