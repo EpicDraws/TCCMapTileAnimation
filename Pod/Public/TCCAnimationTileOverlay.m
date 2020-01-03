@@ -75,9 +75,9 @@ TCCAnimationState _currentAnimationState;
         _frameDuration = frameDuration;
         _currentFrameIndex = 0;
         _downloadQueue = [[NSOperationQueue alloc] init];
-        _downloadQueue.maxConcurrentOperationCount = 4;
+        _downloadQueue.maxConcurrentOperationCount = 32;
         if ([_downloadQueue respondsToSelector:@selector(setQualityOfService:)]) {
-            _downloadQueue.qualityOfService = NSOperationQualityOfServiceUserInitiated;
+            _downloadQueue.qualityOfService = NSOperationQualityOfServiceUserInteractive;
         }
         
         _currentAnimationState = TCCAnimationStateStopped;
